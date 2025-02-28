@@ -1,0 +1,21 @@
+{
+    "name": "@scom/scom-xchain-bridge-record",
+    "type": "widget",
+    "version": "0.1.0",
+    "dependencies": [
+        "@ijstech/components",
+        "@scom/scom-token-list",
+        "@ijstech/eth-wallet",
+        "@scom/scom-network-list",
+        "@scom/scom-wallet-modal",
+        "@scom/scom-network-picker",
+        "@scom/scom-token-modal",
+        "@scom/scom-token-input",
+        "@scom/scom-tx-status-modal",
+        "@ijstech/eth-contract",
+        "@scom/oswap-cross-chain-bridge-contract",
+        "@scom/scom-multicall",
+        "@scom/scom-dapp-container",
+        "@scom/scom-blocknote-sdk"
+    ]
+}

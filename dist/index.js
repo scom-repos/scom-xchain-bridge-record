@@ -378,7 +378,7 @@ define("@scom/scom-xchain-bridge-record/data.json.ts", ["require", "exports"], f
 define("@scom/scom-xchain-bridge-record/store/utils.ts", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-network-list", "@scom/scom-xchain-bridge-record/data.json.ts", "@scom/scom-xchain-bridge-record/store/data/core.ts", "@scom/scom-token-list"], function (require, exports, components_2, eth_wallet_2, scom_network_list_1, data_json_1, core_2, scom_token_list_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getChainNativeToken = exports.isWalletConnected = exports.getWalletProvider = exports.determineOrderStatus = exports.isVaultOrderStatus = exports.isContractVaultOrderStatus = exports.State = exports.VaultOrderStatus = exports.ContractVaultOrderStatus = exports.forEachNumberIndex = exports.forEachNumberIndexAwait = exports.getNetworksByType = exports.getNetworkType = exports.NetworkType = exports.WalletPlugin = void 0;
+    exports.getChainNativeToken = exports.isWalletConnected = exports.getWalletProvider = exports.determineOrderStatus = exports.State = exports.VaultOrderStatus = exports.ContractVaultOrderStatus = exports.forEachNumberIndex = exports.forEachNumberIndexAwait = exports.getNetworksByType = exports.getNetworkType = exports.NetworkType = exports.WalletPlugin = void 0;
     var WalletPlugin;
     (function (WalletPlugin) {
         WalletPlugin["MetaMask"] = "metamask";
@@ -599,14 +599,6 @@ define("@scom/scom-xchain-bridge-record/store/utils.ts", ["require", "exports", 
         }
     }
     exports.State = State;
-    function isContractVaultOrderStatus(n) {
-        return (n <= 6 && n >= 0);
-    }
-    exports.isContractVaultOrderStatus = isContractVaultOrderStatus;
-    function isVaultOrderStatus(n) {
-        return (n <= 6 && n >= 0);
-    }
-    exports.isVaultOrderStatus = isVaultOrderStatus;
     function determineOrderStatus(expire, fromChainStatus, toChainStatus) {
         switch (toChainStatus) {
             case ContractVaultOrderStatus.Executed:
@@ -1425,12 +1417,28 @@ define("@scom/scom-xchain-bridge-record/languages/main.json.ts", ["require", "ex
         }
     };
 });
-define("@scom/scom-xchain-bridge-record/languages/index.ts", ["require", "exports", "@scom/scom-xchain-bridge-record/languages/main.json.ts", "@scom/scom-xchain-bridge-record/languages/main.json.ts"], function (require, exports, main_json_1, main_json_2) {
+define("@scom/scom-xchain-bridge-record/languages/config.json.ts", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    ///<amd-module name='@scom/scom-xchain-bridge-record/languages/config.json.ts'/> 
+    exports.default = {
+        "en": {
+            "asset_names": "Asset Names",
+        },
+        "zh-hant": {
+            "asset_names": "資產名稱",
+        },
+        "vi": {
+            "asset_names": "Tên tài sản",
+        }
+    };
+});
+define("@scom/scom-xchain-bridge-record/languages/index.ts", ["require", "exports", "@scom/scom-xchain-bridge-record/languages/main.json.ts", "@scom/scom-xchain-bridge-record/languages/config.json.ts"], function (require, exports, main_json_1, config_json_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.configJson = exports.mainJson = void 0;
     exports.mainJson = main_json_1.default;
-    exports.configJson = main_json_2.default;
+    exports.configJson = config_json_1.default;
 });
 define("@scom/scom-xchain-bridge-record/crosschain-utils/API.ts", ["require", "exports", "@scom/scom-xchain-bridge-record/store/index.ts", "@ijstech/eth-wallet", "@scom/oswap-cross-chain-bridge-contract", "@scom/scom-multicall", "@ijstech/eth-contract"], function (require, exports, index_7, eth_wallet_3, oswap_cross_chain_bridge_contract_1, scom_multicall_1) {
     "use strict";
@@ -1764,52 +1772,9 @@ define("@scom/scom-xchain-bridge-record/crosschain-utils/API.ts", ["require", "e
                 let order = vaultGroupsStore[ids.vgIndex].vaults[ids.fromChain].userOrders[ids.orderIndex];
                 order.toStatus = res?.toNumber();
                 order.status = (0, index_7.determineOrderStatus)(order.expire, order.fromStatus, order.toStatus);
-                console.log(`${order.fromChain},${vaultGroupsStore[ids.vgIndex].assetName},${order.id} `, `${contractOrderStatusToString(order.fromStatus)}->${contractOrderStatusToString(order.toStatus)} = ${orderStatusToString(order.status)}`, `${new eth_wallet_3.BigNumber(new Date().getTime()).shiftedBy(-3).gte(order.expire) ? "💀expired" : "⏳not expired"}`);
             }
         });
         return vaultGroupsStore;
-    }
-    function contractOrderStatusToString(os) {
-        if ((0, index_7.isContractVaultOrderStatus)(os)) {
-            switch (os) {
-                case index_7.ContractVaultOrderStatus.NotSpecified: //0
-                    return "NotSpecified";
-                case index_7.ContractVaultOrderStatus.Pending: //1
-                    return "Pending";
-                case index_7.ContractVaultOrderStatus.Executed: //2
-                    return "Executed";
-                case index_7.ContractVaultOrderStatus.RequestCancel: //3
-                    return "RequestCancel";
-                case index_7.ContractVaultOrderStatus.RefundApproved: //4
-                    return "RefundApproved";
-                case index_7.ContractVaultOrderStatus.Cancelled: //5
-                    return "Cancelled";
-                case index_7.ContractVaultOrderStatus.RequestAmend: //6:
-                    return "RequestAmend";
-            }
-        }
-        console.log("error vaultOrderStatusToString", os);
-    }
-    function orderStatusToString(os) {
-        if ((0, index_7.isVaultOrderStatus)(os)) {
-            switch (os) {
-                case index_7.VaultOrderStatus.Pending:
-                    return "Pending";
-                case index_7.VaultOrderStatus.Executed:
-                    return "Executed";
-                case index_7.VaultOrderStatus.RequestCancel:
-                    return "RequestCancel";
-                case index_7.VaultOrderStatus.RefundApproved:
-                    return "RefundApproved";
-                case index_7.VaultOrderStatus.Cancelled:
-                    return "Cancelled";
-                case index_7.VaultOrderStatus.RequestAmend:
-                    return "RequestAmend";
-                case index_7.VaultOrderStatus.Expired:
-                    return "Expired";
-            }
-        }
-        console.log("error orderStatusToString", os);
     }
 });
 define("@scom/scom-xchain-bridge-record/crosschain-utils/index.ts", ["require", "exports", "@scom/scom-xchain-bridge-record/crosschain-utils/API.ts"], function (require, exports, API_1) {
@@ -2015,7 +1980,7 @@ define("@scom/scom-xchain-bridge-record/formSchema.ts", ["require", "exports", "
     }
     exports.getBuilderSchema = getBuilderSchema;
 });
-define("@scom/scom-xchain-bridge-record/model.ts", ["require", "exports", "@scom/scom-xchain-bridge-record/store/index.ts", "@scom/scom-token-list", "@scom/scom-xchain-bridge-record/API.ts", "@scom/scom-xchain-bridge-record/crosschain-utils/index.ts", "@ijstech/eth-contract", "@scom/scom-xchain-bridge-record/data.json.ts", "@scom/scom-xchain-bridge-record/formSchema.ts"], function (require, exports, index_11, scom_token_list_4, API_2, index_12, eth_contract_1, data_json_2, formSchema_1) {
+define("@scom/scom-xchain-bridge-record/model.ts", ["require", "exports", "@scom/scom-xchain-bridge-record/store/index.ts", "@scom/scom-token-list", "@scom/scom-xchain-bridge-record/API.ts", "@scom/scom-xchain-bridge-record/crosschain-utils/index.ts", "@ijstech/eth-contract", "@scom/scom-xchain-bridge-record/data.json.ts", "@scom/scom-xchain-bridge-record/formSchema.ts", "@ijstech/eth-wallet"], function (require, exports, index_11, scom_token_list_4, API_2, index_12, eth_contract_1, data_json_2, formSchema_1, eth_wallet_5) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Model = exports.pageSize = void 0;
@@ -2040,6 +2005,7 @@ define("@scom/scom-xchain-bridge-record/model.ts", ["require", "exports", "@scom
             this._orders = [];
             this._itemStart = 0;
             this._itemEnd = exports.pageSize;
+            this._isNetworkChanging = false;
             this.module = module;
             this.state = state;
             this.options = options;
@@ -2085,6 +2051,12 @@ define("@scom/scom-xchain-bridge-record/model.ts", ["require", "exports", "@scom
         }
         set urlParamsEnabled(value) {
             this._data.urlParamsEnabled = value;
+        }
+        get isNetworkChanging() {
+            return this._isNetworkChanging;
+        }
+        set isNetworkChanging(value) {
+            this._isNetworkChanging = value;
         }
         get supportedChainIds() {
             const vaultGroups = index_11.VaultGroupList.filter(v => this.assetNames.includes(v.assetName));
@@ -2427,11 +2399,27 @@ define("@scom/scom-xchain-bridge-record/model.ts", ["require", "exports", "@scom
         }
         async getAllUserOrders() {
             try {
+                const wallet = eth_wallet_5.Wallet.getClientInstance();
+                if (wallet.isConnected) {
+                    const crossChainWallet = (0, index_12.initCrossChainWallet)(this.state, wallet.chainId);
+                    if (!crossChainWallet.address) {
+                        this.isNetworkChanging = true;
+                        const rpcWallet = this.state.getRpcWallet();
+                        await rpcWallet.switchNetwork(rpcWallet.chainId);
+                        this.isNetworkChanging = false;
+                    }
+                }
                 let vaultOrders = await (0, API_2.getAllUserOrders)(this.state, this.module.i18n);
                 this.orders = vaultOrders.orders;
             }
-            catch { }
-            ;
+            catch (e) {
+                console.log('getAllUserOrders', e);
+            }
+            finally {
+                if (this.isNetworkChanging) {
+                    this.isNetworkChanging = false;
+                }
+            }
         }
         async getRoute() {
             let route;
@@ -2482,7 +2470,7 @@ define("@scom/scom-xchain-bridge-record/model.ts", ["require", "exports", "@scom
     }
     exports.Model = Model;
 });
-define("@scom/scom-xchain-bridge-record", ["require", "exports", "@ijstech/components", "@scom/scom-xchain-bridge-record/column.ts", "@scom/scom-xchain-bridge-record/assets.ts", "@scom/scom-xchain-bridge-record/index.css.ts", "@scom/scom-xchain-bridge-record/global/index.ts", "@scom/scom-xchain-bridge-record/store/index.ts", "@ijstech/eth-wallet", "@scom/scom-token-list", "@scom/scom-xchain-bridge-record/languages/index.ts", "@scom/scom-xchain-bridge-record/model.ts", "@scom/scom-xchain-bridge-record/data.json.ts", "@scom/scom-blocknote-sdk"], function (require, exports, components_6, column_1, assets_1, index_css_1, index_13, index_14, eth_wallet_5, scom_token_list_5, index_15, model_1, data_json_3, scom_blocknote_sdk_1) {
+define("@scom/scom-xchain-bridge-record", ["require", "exports", "@ijstech/components", "@scom/scom-xchain-bridge-record/column.ts", "@scom/scom-xchain-bridge-record/assets.ts", "@scom/scom-xchain-bridge-record/index.css.ts", "@scom/scom-xchain-bridge-record/global/index.ts", "@scom/scom-xchain-bridge-record/store/index.ts", "@ijstech/eth-wallet", "@scom/scom-token-list", "@scom/scom-xchain-bridge-record/languages/index.ts", "@scom/scom-xchain-bridge-record/model.ts", "@scom/scom-xchain-bridge-record/data.json.ts", "@scom/scom-blocknote-sdk"], function (require, exports, components_6, column_1, assets_1, index_css_1, index_13, index_14, eth_wallet_6, scom_token_list_5, index_15, model_1, data_json_3, scom_blocknote_sdk_1) {
     "use strict";
     var ScomXchainBridgeRecord_1;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -2503,6 +2491,8 @@ define("@scom/scom-xchain-bridge-record", ["require", "exports", "@ijstech/compo
             this.tag = {};
             this.onChainChange = async () => {
                 const chainId = this.state.getChainId();
+                if (this.model.isNetworkChanging)
+                    return;
                 if (this.model.orders.length && this.model.networkList.some(v => v.chainId === chainId)) {
                     this.model.chainId = chainId;
                     this.updateSwitchButton();
@@ -2729,7 +2719,7 @@ define("@scom/scom-xchain-bridge-record", ["require", "exports", "@ijstech/compo
             this.onConfirm = async (actionType) => {
                 if (!this.state.isRpcWalletConnected()) {
                     const chainId = this.state.getChainId();
-                    const clientWallet = eth_wallet_5.Wallet.getClientInstance();
+                    const clientWallet = eth_wallet_6.Wallet.getClientInstance();
                     await clientWallet.switchNetwork(chainId);
                     return;
                 }
@@ -2797,7 +2787,7 @@ define("@scom/scom-xchain-bridge-record", ["require", "exports", "@ijstech/compo
                         if (rpcWallet.chainId != this.model.switchChainId) {
                             await rpcWallet.switchNetwork(this.model.switchChainId);
                         }
-                        const clientWallet = eth_wallet_5.Wallet.getClientInstance();
+                        const clientWallet = eth_wallet_6.Wallet.getClientInstance();
                         await clientWallet.switchNetwork(this.model.switchChainId);
                     }
                 }
@@ -2855,9 +2845,9 @@ define("@scom/scom-xchain-bridge-record", ["require", "exports", "@ijstech/compo
                 this.networkNameVal.caption = network.chainName;
                 const amount = record.sourceVaultInAmount || null;
                 const symbol = record.sourceVaultToken?.symbol || '';
-                this.withdrawAmount.caption = amount === null ? '-' : `${components_6.FormatUtils.formatNumber(new eth_wallet_5.BigNumber(amount).multipliedBy(new eth_wallet_5.BigNumber(1).minus(protocolFee)).toFixed(), { decimalFigures: 4, hasTrailingZero: false })} ${symbol}`;
+                this.withdrawAmount.caption = amount === null ? '-' : `${components_6.FormatUtils.formatNumber(new eth_wallet_6.BigNumber(amount).multipliedBy(new eth_wallet_6.BigNumber(1).minus(protocolFee)).toFixed(), { decimalFigures: 4, hasTrailingZero: false })} ${symbol}`;
                 this.noteCancelOrWithdraw.caption = isCancel ?
-                    this.i18n.get('$you_can_withdraw_the_tokens_after_the_cancellation_is_approved_by_the_bridge_trolls._the_cancellation_is_subjected_to_a_cancellation_fee', { fee: `${new eth_wallet_5.BigNumber(protocolFee).multipliedBy(100).toFixed(2)}%` }) :
+                    this.i18n.get('$you_can_withdraw_the_tokens_after_the_cancellation_is_approved_by_the_bridge_trolls._the_cancellation_is_subjected_to_a_cancellation_fee', { fee: `${new eth_wallet_6.BigNumber(protocolFee).multipliedBy(100).toFixed(2)}%` }) :
                     this.i18n.get('$the_token_will_be_returned_to_your_wallet_after_withdrawal');
                 this.noteNetwork.caption = this.i18n.get(isCancel ?
                     '$the_request_must_be_submitted_from_the_destination_chain,_please_switch_your_network_as_instructed' :
@@ -2956,7 +2946,7 @@ define("@scom/scom-xchain-bridge-record", ["require", "exports", "@ijstech/compo
             this.onRenderDataMobile = async () => {
                 const list = this.model.paginatedData;
                 this.bridgeRecordMobile.clearInnerHTML();
-                if (!list.length) {
+                if (!list.length || !(0, index_14.isWalletConnected)()) {
                     this.bridgeRecordMobile.appendChild(this.$render("i-hstack", { class: "empty-header", justifyContent: "center" },
                         this.$render("i-image", { url: assets_1.default.fullPath('img/icon-advice.svg'), minWidth: 60, minHeight: 60 }),
                         this.$render("i-panel", null,
@@ -3030,8 +3020,8 @@ define("@scom/scom-xchain-bridge-record", ["require", "exports", "@ijstech/compo
                         this.$render("i-hstack", { class: "row-table" },
                             this.$render("i-vstack", { class: "custom-col" },
                                 this.$render("i-label", { class: "text-grey", caption: "$minimum_receive" })),
-                            this.$render("i-hstack", { verticalAlignment: "center" },
-                                this.$render("i-image", { width: "20px", class: "inline-block", margin: { right: 8 }, url: (0, column_1.toTokenIcon)(record) }),
+                            this.$render("i-hstack", { gap: 8, verticalAlignment: "center" },
+                                this.$render("i-image", { width: "20px", display: "inline-flex", url: (0, column_1.toTokenIcon)(record) }),
                                 this.$render("i-label", { caption: `${components_6.FormatUtils.formatNumber(record.minOutAmount, { decimalFigures: 4, hasTrailingZero: false })} ${record.toToken.symbol}` }))),
                         this.$render("i-hstack", { class: "row-table" },
                             this.$render("i-vstack", { class: "custom-col" },
@@ -3233,10 +3223,10 @@ define("@scom/scom-xchain-bridge-record", ["require", "exports", "@ijstech/compo
             this.removeRpcWalletEvents();
             const rpcWalletId = await this.state.initRpcWallet(this.defaultChainId);
             const rpcWallet = this.state.getRpcWallet();
-            const chainChangedEvent = rpcWallet.registerWalletEvent(this, eth_wallet_5.Constants.RpcWalletEvent.ChainChanged, async (chainId) => {
+            const chainChangedEvent = rpcWallet.registerWalletEvent(this, eth_wallet_6.Constants.RpcWalletEvent.ChainChanged, async (chainId) => {
                 this.onChainChange();
             });
-            const connectedEvent = rpcWallet.registerWalletEvent(this, eth_wallet_5.Constants.RpcWalletEvent.Connected, async (connected) => {
+            const connectedEvent = rpcWallet.registerWalletEvent(this, eth_wallet_6.Constants.RpcWalletEvent.Connected, async (connected) => {
                 this.onWalletConnect();
             });
             const data = {
@@ -3326,6 +3316,9 @@ define("@scom/scom-xchain-bridge-record", ["require", "exports", "@ijstech/compo
             this.model.itemStart = 0;
             this.model.itemEnd = this.model.itemStart + model_1.pageSize;
             this.bridgeRecordTable.data = [];
+            if (!(0, index_14.isWalletConnected)()) {
+                this.onRenderDataMobile();
+            }
         }
         async switchNetworkByWallet() {
             if (this.mdWallet) {

@@ -5,10 +5,11 @@ import { IWalletPlugin } from "@scom/scom-wallet-modal";
 import { INetworkConfig } from "@scom/scom-network-picker";
 import { ITokenObject, tokenStore } from "@scom/scom-token-list";
 import { getAllUserOrders, requestAmendOrder, requestCancelOrder, withdrawUnexecutedOrder } from "./API";
-import { findVaultGroupByToken, getRoute, Route } from "./crosschain-utils/index";
+import { findVaultGroupByToken, getRoute, initCrossChainWallet, Route } from "./crosschain-utils/index";
 import { BigNumber } from "@ijstech/eth-contract";
 import configData from './data.json';
 import { getBuilderSchema } from "./formSchema";
+import { Wallet } from "@ijstech/eth-wallet";
 
 export const pageSize = 5;
 
@@ -73,6 +74,7 @@ export class Model {
   private _itemEnd = pageSize;
   private _currentAction: ActionType;
   private _sortByDate: DateOptions;
+  private _isNetworkChanging = false;
   private _initializedState: { chainId: number, connected: boolean, loading: boolean };
 
   constructor(module: Module, state: State, options: IOptions) {
@@ -135,6 +137,14 @@ export class Model {
 
   set urlParamsEnabled(value: boolean) {
     this._data.urlParamsEnabled = value;
+  }
+
+  get isNetworkChanging() {
+    return this._isNetworkChanging;
+  }
+
+  private set isNetworkChanging(value: boolean) {
+    this._isNetworkChanging = value;
   }
 
   private get supportedChainIds() {
@@ -506,9 +516,26 @@ export class Model {
 
   async getAllUserOrders() {
     try {
+      const wallet = Wallet.getClientInstance();
+      if (wallet.isConnected) {
+        const crossChainWallet = initCrossChainWallet(this.state, wallet.chainId);
+        if (!crossChainWallet.address) {
+          this.isNetworkChanging = true;
+          const rpcWallet = this.state.getRpcWallet();
+          await rpcWallet.switchNetwork(rpcWallet.chainId);
+          this.isNetworkChanging = false;
+        }
+      }
       let vaultOrders = await getAllUserOrders(this.state, this.module.i18n);
       this.orders = vaultOrders.orders;
-    } catch { };
+    } catch (e) {
+      console.log('getAllUserOrders', e);
+    }
+    finally {
+      if (this.isNetworkChanging) {
+        this.isNetworkChanging = false;
+      }
+    }
   }
 
   async getRoute() {

@@ -359,8 +359,6 @@ declare module "@scom/scom-xchain-bridge-record/store/utils.ts" {
         getNetworkConfig: () => INetworkConfig[];
         private initData;
     }
-    export function isContractVaultOrderStatus(n: number): n is ContractVaultOrderStatus;
-    export function isVaultOrderStatus(n: number): n is VaultOrderStatus;
     export function determineOrderStatus(expire: number | BigNumber, fromChainStatus: ContractVaultOrderStatus, toChainStatus: ContractVaultOrderStatus): VaultOrderStatus;
     interface NetworkConditions {
         isDisabled?: boolean;
@@ -572,10 +570,25 @@ declare module "@scom/scom-xchain-bridge-record/languages/main.json.ts" {
     };
     export default _default_2;
 }
+/// <amd-module name="@scom/scom-xchain-bridge-record/languages/config.json.ts" />
+declare module "@scom/scom-xchain-bridge-record/languages/config.json.ts" {
+    const _default_3: {
+        en: {
+            asset_names: string;
+        };
+        "zh-hant": {
+            asset_names: string;
+        };
+        vi: {
+            asset_names: string;
+        };
+    };
+    export default _default_3;
+}
 /// <amd-module name="@scom/scom-xchain-bridge-record/languages/index.ts" />
 declare module "@scom/scom-xchain-bridge-record/languages/index.ts" {
     import mainJson from "@scom/scom-xchain-bridge-record/languages/main.json.ts";
-    import configJson from "@scom/scom-xchain-bridge-record/languages/main.json.ts";
+    import configJson from "@scom/scom-xchain-bridge-record/languages/config.json.ts";
     export { mainJson, configJson };
 }
 /// <amd-module name="@scom/scom-xchain-bridge-record/crosschain-utils/API.ts" />
@@ -737,6 +750,7 @@ declare module "@scom/scom-xchain-bridge-record/model.ts" {
         private _itemEnd;
         private _currentAction;
         private _sortByDate;
+        private _isNetworkChanging;
         private _initializedState;
         constructor(module: Module, state: State, options: IOptions);
         get defaultChainId(): number;
@@ -753,6 +767,8 @@ declare module "@scom/scom-xchain-bridge-record/model.ts" {
         set assetNames(value: string[]);
         get urlParamsEnabled(): boolean;
         set urlParamsEnabled(value: boolean);
+        get isNetworkChanging(): boolean;
+        private set isNetworkChanging(value);
         private get supportedChainIds();
         setData(value: IXchainBridgeRecordData): Promise<void>;
         getData(): IXchainBridgeRecordData;
@@ -938,124 +954,13 @@ declare module "@scom/scom-xchain-bridge-record" {
         }[];
         getConfigJson(): {
             en: {
-                data_last_updated_0_seconds_ago: string;
-                data_last_updated_seconds_ago: string;
-                latest_swap: string;
-                no_data: string;
-                please_connect_with_your_wallet: string;
-                oldest_swap: string;
-                destination_chain: string;
-                source_chain: string;
-                token_group: string;
-                confirming: string;
-                request_cancel: string;
-                withdraw: string;
-                "you_can_withdraw_the_tokens_after_the_cancellation_is_approved_by_the_bridge_trolls._the_cancellation_is_subjected_to_a_cancellation_fee": string;
-                the_token_will_be_returned_to_your_wallet_after_withdrawal: string;
-                "the_request_must_be_submitted_from_the_destination_chain,_please_switch_your_network_as_instructed": string;
-                "the_request_must_be_submitted_from_the_source_chain,_please_switch_your_network_as_instructed": string;
-                amend_order: string;
-                minimum_receive: string;
-                the_address_has_been_copied: string;
-                loading: string;
-                withdraw_amount: string;
-                switch_network: string;
-                token_receive: string;
-                expected_receive: string;
-                confirm: string;
-                token_swap: string;
-                from: string;
-                to: string;
-                status: string;
-                pending: string;
-                executed: string;
-                refund_approved: string;
-                cancelled: string;
-                cancel_approved: string;
-                request_amend: string;
-                expired: string;
-                sender_address: string;
-                amount_lower_than_base_fee: string;
+                asset_names: string;
             };
             "zh-hant": {
-                data_last_updated_0_seconds_ago: string;
-                data_last_updated_seconds_ago: string;
-                latest_swap: string;
-                no_data: string;
-                please_connect_with_your_wallet: string;
-                oldest_swap: string;
-                destination_chain: string;
-                source_chain: string;
-                token_group: string;
-                confirming: string;
-                request_cancel: string;
-                withdraw: string;
-                "you_can_withdraw_the_tokens_after_the_cancellation_is_approved_by_the_bridge_trolls._the_cancellation_is_subjected_to_a_cancellation_fee": string;
-                the_token_will_be_returned_to_your_wallet_after_withdrawal: string;
-                "the_request_must_be_submitted_from_the_destination_chain,_please_switch_your_network_as_instructed": string;
-                "the_request_must_be_submitted_from_the_source_chain,_please_switch_your_network_as_instructed": string;
-                amend_order: string;
-                minimum_receive: string;
-                the_address_has_been_copied: string;
-                loading: string;
-                withdraw_amount: string;
-                switch_network: string;
-                token_receive: string;
-                expected_receive: string;
-                confirm: string;
-                token_swap: string;
-                from: string;
-                to: string;
-                status: string;
-                pending: string;
-                executed: string;
-                refund_approved: string;
-                cancelled: string;
-                cancel_approved: string;
-                request_amend: string;
-                expired: string;
-                sender_address: string;
-                amount_lower_than_base_fee: string;
+                asset_names: string;
             };
             vi: {
-                data_last_updated_0_seconds_ago: string;
-                data_last_updated_seconds_ago: string;
-                latest_swap: string;
-                no_data: string;
-                please_connect_with_your_wallet: string;
-                oldest_swap: string;
-                destination_chain: string;
-                source_chain: string;
-                token_group: string;
-                confirming: string;
-                request_cancel: string;
-                withdraw: string;
-                "you_can_withdraw_the_tokens_after_the_cancellation_is_approved_by_the_bridge_trolls._the_cancellation_is_subjected_to_a_cancellation_fee": string;
-                the_token_will_be_returned_to_your_wallet_after_withdrawal: string;
-                "the_request_must_be_submitted_from_the_destination_chain,_please_switch_your_network_as_instructed": string;
-                "the_request_must_be_submitted_from_the_source_chain,_please_switch_your_network_as_instructed": string;
-                amend_order: string;
-                minimum_receive: string;
-                the_address_has_been_copied: string;
-                loading: string;
-                withdraw_amount: string;
-                switch_network: string;
-                token_receive: string;
-                expected_receive: string;
-                confirm: string;
-                token_swap: string;
-                from: string;
-                to: string;
-                status: string;
-                pending: string;
-                executed: string;
-                refund_approved: string;
-                cancelled: string;
-                cancel_approved: string;
-                request_amend: string;
-                expired: string;
-                sender_address: string;
-                amount_lower_than_base_fee: string;
+                asset_names: string;
             };
         };
         addBlock(blocknote: any, executeFn: executeFnType, callbackFn?: callbackFnType): {

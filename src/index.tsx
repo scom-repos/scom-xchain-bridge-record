@@ -420,6 +420,7 @@ export default class ScomXchainBridgeRecord extends Module implements BlockNoteS
 
   private onChainChange = async () => {
     const chainId = this.state.getChainId();
+    if (this.model.isNetworkChanging) return;
     if (this.model.orders.length && this.model.networkList.some(v => v.chainId === chainId)) {
       this.model.chainId = chainId;
       this.updateSwitchButton();
@@ -631,6 +632,9 @@ export default class ScomXchainBridgeRecord extends Module implements BlockNoteS
     this.model.itemStart = 0;
     this.model.itemEnd = this.model.itemStart + pageSize;
     this.bridgeRecordTable.data = [];
+    if (!isWalletConnected()) {
+      this.onRenderDataMobile();
+    }
   }
 
   private expandRecord = () => {
@@ -1033,7 +1037,7 @@ export default class ScomXchainBridgeRecord extends Module implements BlockNoteS
   private onRenderDataMobile = async () => {
     const list = this.model.paginatedData;
     this.bridgeRecordMobile.clearInnerHTML();
-    if (!list.length) {
+    if (!list.length || !isWalletConnected()) {
       this.bridgeRecordMobile.appendChild(
         <i-hstack class="empty-header" justifyContent="center">
           <i-image url={Assets.fullPath('img/icon-advice.svg')} minWidth={60} minHeight={60} />
@@ -1134,8 +1138,8 @@ export default class ScomXchainBridgeRecord extends Module implements BlockNoteS
         <i-vstack class="col-50">
           <i-hstack class="row-table">
             <i-vstack class="custom-col"><i-label class="text-grey" caption="$minimum_receive" /></i-vstack>
-            <i-hstack verticalAlignment="center">
-              <i-image width="20px" class="inline-block" margin={{ right: 8 }} url={toTokenIcon(record)}></i-image>
+            <i-hstack gap={8} verticalAlignment="center">
+              <i-image width="20px" display="inline-flex" url={toTokenIcon(record)}></i-image>
               <i-label caption={`${FormatUtils.formatNumber(record.minOutAmount, { decimalFigures: 4, hasTrailingZero: false })} ${record.toToken.symbol}`} />
             </i-hstack>
           </i-hstack>

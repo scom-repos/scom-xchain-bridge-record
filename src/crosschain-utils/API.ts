@@ -11,8 +11,6 @@ import {
   State,
   ContractVaultOrderStatus,
   determineOrderStatus,
-  isContractVaultOrderStatus,
-  isVaultOrderStatus,
 } from "../store/index";
 import { Wallet, BigNumber, IMulticallContractCall } from "@ijstech/eth-wallet";
 import '@ijstech/eth-contract';
@@ -405,59 +403,10 @@ async function fetchOrdersStatus(state: State, vaultGroupsStore: VaultGroupStore
       let order = vaultGroupsStore[ids.vgIndex].vaults[ids.fromChain].userOrders[ids.orderIndex];
       order.toStatus = res?.toNumber();
       order.status = determineOrderStatus(order.expire, order.fromStatus, order.toStatus);
-
-      console.log(`${order.fromChain},${vaultGroupsStore[ids.vgIndex].assetName},${order.id} `,
-        `${contractOrderStatusToString(order.fromStatus)}->${contractOrderStatusToString(order.toStatus)} = ${orderStatusToString(order.status)}`,
-        `${new BigNumber(new Date().getTime()).shiftedBy(-3).gte(order.expire) ? "💀expired" : "⏳not expired"}`);
     }
   });
   return vaultGroupsStore;
 }
-
-function contractOrderStatusToString(os: number): string {
-  if (isContractVaultOrderStatus(os)) {
-    switch (os) {
-      case ContractVaultOrderStatus.NotSpecified://0
-        return "NotSpecified";
-      case ContractVaultOrderStatus.Pending://1
-        return "Pending";
-      case ContractVaultOrderStatus.Executed://2
-        return "Executed";
-      case ContractVaultOrderStatus.RequestCancel://3
-        return "RequestCancel";
-      case ContractVaultOrderStatus.RefundApproved://4
-        return "RefundApproved";
-      case ContractVaultOrderStatus.Cancelled://5
-        return "Cancelled";
-      case ContractVaultOrderStatus.RequestAmend://6:
-        return "RequestAmend";
-    }
-  }
-  console.log("error vaultOrderStatusToString", os);
-}
-
-function orderStatusToString(os: number) {
-  if (isVaultOrderStatus(os)) {
-    switch (os) {
-      case VaultOrderStatus.Pending:
-        return "Pending";
-      case VaultOrderStatus.Executed:
-        return "Executed";
-      case VaultOrderStatus.RequestCancel:
-        return "RequestCancel";
-      case VaultOrderStatus.RefundApproved:
-        return "RefundApproved";
-      case VaultOrderStatus.Cancelled:
-        return "Cancelled";
-      case VaultOrderStatus.RequestAmend:
-        return "RequestAmend";
-      case VaultOrderStatus.Expired:
-        return "Expired";
-    }
-  }
-  console.log("error orderStatusToString", os);
-}
-
 
 export {
   isSupportedCrossChain,

@@ -319,14 +319,6 @@ export class State {
   }
 }
 
-export function isContractVaultOrderStatus(n: number): n is ContractVaultOrderStatus {
-  return (n <= 6 && n >= 0);
-}
-
-export function isVaultOrderStatus(n: number): n is VaultOrderStatus {
-  return (n <= 6 && n >= 0);
-}
-
 export function determineOrderStatus(expire: number | BigNumber, fromChainStatus: ContractVaultOrderStatus, toChainStatus: ContractVaultOrderStatus): VaultOrderStatus {
   switch (toChainStatus) {
     case ContractVaultOrderStatus.Executed:
